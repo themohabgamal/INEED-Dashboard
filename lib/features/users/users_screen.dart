@@ -2,9 +2,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class UsersScreen extends StatelessWidget {
+class UsersScreen extends StatefulWidget {
   const UsersScreen({super.key});
 
+  @override
+  _UsersScreenState createState() => _UsersScreenState();
+}
+
+class _UsersScreenState extends State<UsersScreen> {
+  String _searchQuery = '';
+  bool _isSearching = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -13,31 +20,81 @@ class UsersScreen extends StatelessWidget {
           'المستخدمين',
           style: GoogleFonts.cairo(),
         ),
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(left: 10),
+            child: IconButton(
+              icon: const Icon(
+                Icons.search,
+                size: 40,
+              ),
+              onPressed: () {
+                setState(() {
+                  _isSearching = !_isSearching;
+                });
+              },
+            ),
+          )
+        ],
       ),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance.collection('users').snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return Center(
-              child: Text(
-                'لا توجد مستخدمين',
+      body: Column(
+        children: [
+          if (_isSearching)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                onChanged: (value) {
+                  setState(() {
+                    _searchQuery = value; // Update the search query
+                  });
+                },
+                decoration: InputDecoration(
+                  labelText: 'ابحث عن مستخدم',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  suffixIcon: const Icon(Icons.search),
+                ),
                 style: GoogleFonts.cairo(),
               ),
-            );
-          }
+            ),
+          Expanded(
+            child: StreamBuilder<QuerySnapshot>(
+              stream:
+                  FirebaseFirestore.instance.collection('users').snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-          return ListView.builder(
-            itemCount: snapshot.data!.docs.length,
-            itemBuilder: (context, index) {
-              var user = snapshot.data!.docs[index];
-              return _buildUserCard(user);
-            },
-          );
-        },
+                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                  return Center(
+                    child: Text(
+                      'لا توجد مستخدمين',
+                      style: GoogleFonts.cairo(),
+                    ),
+                  );
+                }
+
+                // Filter users based on the search query
+                var filteredUsers = snapshot.data!.docs.where((user) {
+                  String name = user['name'] ?? '';
+                  String email = user['email'] ?? '';
+                  return name.contains(_searchQuery) ||
+                      email.contains(_searchQuery);
+                }).toList();
+
+                return ListView.builder(
+                  itemCount: filteredUsers.length,
+                  itemBuilder: (context, index) {
+                    var user = filteredUsers[index];
+                    return _buildUserCard(user);
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

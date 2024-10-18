@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:yemen_services_dashboard/core/theme/colors.dart';
 import 'package:yemen_services_dashboard/features/categories/categories_screen.dart';
+import 'package:yemen_services_dashboard/features/notifications/notifications_screen.dart';
 import 'package:yemen_services_dashboard/features/offers/offers_screen.dart';
 import 'package:yemen_services_dashboard/features/service_providers/service_providers_screen.dart';
+import 'package:yemen_services_dashboard/features/statistics/statistics_screen.dart';
 import 'package:yemen_services_dashboard/features/users/users_screen.dart'; // Import GoogleFonts package
 
 void main() async {
@@ -144,40 +146,6 @@ class _DashboardState extends State<Dashboard> {
 }
 
 // Placeholder Screens
-
-class NotificationsScreen extends StatelessWidget {
-  const NotificationsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'ارسال اشعارات',
-        style: TextStyle(
-          fontSize: 24,
-          fontFamily: GoogleFonts.cairo().fontFamily, // Cairo font
-        ),
-      ),
-    );
-  }
-}
-
-class StatisticsScreen extends StatelessWidget {
-  const StatisticsScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Text(
-        'احصائيات',
-        style: TextStyle(
-          fontSize: 24,
-          fontFamily: GoogleFonts.cairo().fontFamily, // Cairo font
-        ),
-      ),
-    );
-  }
-}
 
 class SortedOffersScreen extends StatelessWidget {
   const SortedOffersScreen({super.key});

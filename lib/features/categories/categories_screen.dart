@@ -115,16 +115,37 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
 
   Future<void> _deleteCategory(String docId, String imageUrl) async {
-    try {
-      final storageRef = FirebaseStorage.instance.refFromURL(imageUrl);
-      await storageRef.delete();
+    // Show a confirmation dialog before deletion
+    final bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('تأكيد الحذف'),
+          content: const Text('هل أنت متأكد أنك تريد حذف هذا التصنيف؟'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false), // Cancel
+              child: const Text('إلغاء'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true), // Confirm
+              child: const Text('حذف'),
+            ),
+          ],
+        );
+      },
+    );
 
-      await FirebaseFirestore.instance.collection('cat').doc(docId).delete();
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('تم حذف التصنيف بنجاح')));
-    } catch (error) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('حدث خطأ أثناء الحذف')));
+    // If the user confirmed, proceed with deletion
+    if (confirm == true) {
+      try {
+        await FirebaseFirestore.instance.collection('cat').doc(docId).delete();
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('تم حذف التصنيف بنجاح')));
+      } catch (error) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('حدث خطأ أثناء الحذف')));
+      }
     }
   }
 
@@ -258,15 +279,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         }
 
         return SizedBox(
-          height: MediaQuery.of(context).size.height *
-              0.7, // Adjust height based on your design
+          height: MediaQuery.of(context).size.height * 0.7,
           child: GridView.builder(
-            // scrollDirection: Axis.horizontal,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 6,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: _calculateCrossAxisCount(context),
               mainAxisSpacing: 10,
               crossAxisSpacing: 10,
-              childAspectRatio: 6 / 7,
+              childAspectRatio: 0.8, // Adjust this based on your design needs
             ),
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
@@ -279,50 +298,73 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
   }
 
+  int _calculateCrossAxisCount(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    if (width < 600) {
+      return 2; // 2 columns for small screens
+    } else if (width < 900) {
+      return 4; // 4 columns for medium screens
+    } else {
+      return 6; // 6 columns for large screens
+    }
+  }
+
   Widget _buildCategoryCard(QueryDocumentSnapshot category) {
     String docId = category.id;
     String name = category['name'];
     String imageUrl = category['image'];
 
-    return Container(
-      width: 160, // Adjust width based on your design
-      margin: const EdgeInsets.symmetric(horizontal: 8.0),
-      child: Card(
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(12)),
-              child: CachedNetworkImage(
-                imageUrl: imageUrl,
-                width: 80,
-                height: 120,
-                errorWidget: (context, url, error) {
-                  log(error.toString());
-                  return const Icon(Icons.error, color: Colors.red);
-                },
-              ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        // Use a percentage of the available width for responsiveness
+        double cardWidth = constraints.maxWidth * 0.4; // 40% of available width
+        double imageHeight = cardWidth * 1.5; // Aspect ratio 2:3
+
+        return Container(
+          margin: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Card(
+            elevation: 4,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                ClipRRect(
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(12)),
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    height: imageHeight, // Use calculated height
+                    fit: BoxFit.cover, // Cover the area appropriately
+                    errorWidget: (context, url, error) {
+                      log(error.toString());
+                      return const Icon(Icons.error, color: Colors.red);
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    name,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
+                    style: GoogleFonts.cairo(
+                        fontSize: 14), // Adjusted for better readability
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () {
+                    _deleteCategory(docId, imageUrl);
+                  },
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text(
-                name,
-                style: GoogleFonts.cairo(),
-                textAlign: TextAlign.center,
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () {
-                _deleteCategory(docId, imageUrl);
-              },
-            ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 }
