@@ -1,146 +1,117 @@
-import 'dart:developer';
-import 'dart:io';
+
+
+
+
+// ignore_for_file: prefer_adjacent_string_concatenation, prefer_interpolation_to_compose_strings
+
+ import 'dart:io';
 import 'dart:typed_data';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 import 'package:yemen_services_dashboard/core/theme/colors.dart';
+import 'package:yemen_services_dashboard/features/offers/controller/offers_controller.dart';
+import 'package:yemen_services_dashboard/features/offers/custom_text.dart';
+import 'package:yemen_services_dashboard/features/offers/cutom_button.dart';
 
-class OffersScreen extends StatefulWidget {
-  const OffersScreen({super.key});
+import 'get_offers_view.dart';
+
+class AddAdView extends StatefulWidget {
+  const AddAdView({super.key});
 
   @override
-  _OffersScreenState createState() => _OffersScreenState();
+  State<AddAdView> createState() => _AddAdViewState();
 }
 
-class _OffersScreenState extends State<OffersScreen> {
-  String? _imageUrl;
-  final _descriptionController = TextEditingController();
-  bool _isLoading = false;
-  bool _isImageUploading = false; // New variable to track image upload status
-  String? _uploadedFileURL;
 
-  Future<void> imgFromGallery() async {
+ AdController controller = Get.put(AdController());
+  String? _imageUrl;
+  String? _uploadedFileURL;
+class _AddAdViewState extends State<AddAdView> {
+ 
+  @override
+  void initState() {
+   // controller.getUserData();
+    controller.getCats().then((v) {
+
+    });
+    // controller.getSubCats(widget.cat).then((v) {});
+    super.initState();
+  }
+
+
+   Future<void> imgFromGallery() async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
-
     if (pickedFile != null) {
+      // Immediately set the image URL to display in the dialog
       setState(() {
         _imageUrl = pickedFile.path; // Set the picked image path
-        _isImageUploading = true; // Set uploading status to true
       });
-
       // Read the image as bytes for upload
       Uint8List imageData = await pickedFile.readAsBytes();
+      // ignore: avoid_print
       print('picked');
-      await uploadImage(imageData); // Await the image upload
+      uploadImage(imageData);
     }
   }
 
-  Future<void> uploadImage(Uint8List xfile) async {
-    Reference ref = FirebaseStorage.instance.ref().child('offers');
+    Future<String> uploadImage(Uint8List xfile) async {
+    Reference ref = FirebaseStorage.instance.ref().child('Folder');
     String id = const Uuid().v1();
     ref = ref.child(id);
 
-    try {
-      UploadTask uploadTask = ref.putData(
-        xfile,
-        SettableMetadata(contentType: 'image/png'),
-      );
-      TaskSnapshot snapshot = await uploadTask;
-      String downloadUrl = await snapshot.ref.getDownloadURL();
-      setState(() {
-        _uploadedFileURL = downloadUrl; // Set the uploaded file URL
-        _isImageUploading = false; // Reset upload status
-      });
-      print(downloadUrl);
-    } catch (error) {
-      setState(() {
-        _isImageUploading = false; // Reset upload status on error
-      });
-      print('Upload error: $error');
-    }
-  }
-
-  Future<void> _addOffer() async {
-    if (_uploadedFileURL == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content: Text('يرجي اضافة صورة و الانتظار حتي يتم رفعها اولا')),
-      );
-      return;
-    }
-
+    UploadTask uploadTask = ref.putData(
+      xfile,
+      SettableMetadata(contentType:'image/png'),
+    );
+    TaskSnapshot snapshot = await uploadTask;
+    String downloadUrl = await snapshot.ref.getDownloadURL();
     setState(() {
-      _isLoading = true; // Show loading indicator
+      _uploadedFileURL = downloadUrl;
     });
-
-    try {
-      // Add offer to Firestore
-      await FirebaseFirestore.instance.collection('ads').add({
-        'image': _uploadedFileURL,
-      });
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('تمت اضافة العرض بنجاح')),
-      );
-      _descriptionController.clear();
-      setState(() {
-        _imageUrl = null; // Clear the image URL
-        _uploadedFileURL = null; // Clear uploaded file URL
-      });
-    } catch (error) {
-      if (error is FirebaseException) {
-        print('Firebase Error: ${error.message}');
-      } else {
-        print('Error: $error');
-      }
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('حدث خطأ ما')),
-      );
-    } finally {
-      setState(() {
-        _isLoading = false; // Hide loading indicator
-      });
-    }
+    print(downloadUrl);
+    return downloadUrl;
   }
 
-  Future<void> _deleteOffer(String docId, String imageUrl) async {
-    try {
-      final storageRef = FirebaseStorage.instance.refFromURL(imageUrl);
-      await storageRef.delete();
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder<AdController>(
+      builder: (_) {
+        return Scaffold(
+          backgroundColor:Colors.white,
+        //  appBar:CustomAppBar('addAdd'.tr, context),
+          body:Padding(
+            padding: const EdgeInsets.all(11.0),
+            child: ListView(children: [
 
-      await FirebaseFirestore.instance.collection('ads').doc(docId).delete();
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('تم حذف العرض بنجاح')));
-    } catch (error) {
-      ScaffoldMessenger.of(context)
-          .showSnackBar(const SnackBar(content: Text('حدث خطأ أثناء الحذف')));
-    }
-  }
+              const SizedBox(height: 22,),
 
-// Inside _showAddOfferDialog()
-  Future<void> _showAddOfferDialog() async {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            return AlertDialog(
-              contentPadding: const EdgeInsets.all(16.0),
-              content: SingleChildScrollView(
-                child: Align(
-                  child: Directionality(
-                    textDirection: TextDirection.rtl,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text('صورة العرض الجديد',
+              CustomButton(text: 'عرض الاعلانات المتاحة بالتطبيق', onPressed: (){
+
+                print("AD...");
+
+                Get.to(const GetOffersView());
+
+              }),
+                const SizedBox(height: 22,),
+
+                const Divider(color: Colors.blue,),
+                    const SizedBox(height: 22,),
+
+                    const Center(
+                      child: Text('اضافة اعلانات جديدة',
+                      style:TextStyle(color:Colors.black,
+                      fontSize: 22,fontWeight: FontWeight.bold
+                      ),
+                      ),
+                    ),
+
+                Text('صورة القسم الجديد',
                             style: GoogleFonts.cairo(fontSize: 18)),
                         const SizedBox(height: 10),
                         SizedBox(
@@ -150,176 +121,296 @@ class _OffersScreenState extends State<OffersScreen> {
                             onTap: () async {
                               await imgFromGallery();
                               setState(
-                                  () {}); // Update UI after image is picked
+                                  () {}); // Call setState inside dialog to update the UI after image is picked
                             },
                             child: _imageUrl == null
-                                ? _isImageUploading
-                                    ? const CircularProgressIndicator()
-                                    : Container(
-                                        width: double.infinity,
-                                        height: 150,
-                                        color: Colors.grey[300],
-                                        child: Icon(Icons.image,
-                                            color: Colors.grey[600]),
-                                      )
-                                : Stack(
-                                    children: [
-                                      Image.network(
-                                        _imageUrl!, // Use File for local image
-                                        width: double.infinity,
-                                        height: 150,
-                                        fit: BoxFit.cover,
-                                      ),
-                                      if (_isImageUploading) // Show loading indicator if uploading
-                                        Container(
-                                          color: Colors.black54,
-                                          child: const Center(
-                                            child: CircularProgressIndicator(),
-                                          ),
-                                        ),
-                                    ],
+                                ? Container(
+                                    width: double.infinity,
+                                    height: 180,
+                                    color: Colors.grey[300],
+                                    child: Icon(Icons.image,
+                                        color: Colors.grey[600]),
+                                  )
+                                : Image.network(
+                                    _imageUrl!, // Display selected image
+                                    width: double.infinity,
+                                    height: 430,
+                                    fit: BoxFit.contain,
                                   ),
                           ),
                         ),
-                        const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: _uploadedFileURL == null || _isLoading
-                              ? null // Disable the button until the image is uploaded
-                              : () async {
-                                  await _addOffer();
-                                  Navigator.pop(
-                                      context); // Close dialog after adding
-                                },
-                          child: Text('اضافة', style: GoogleFonts.cairo()),
-                        ),
-                      ],
-                    ),
-                  ),
+
+
+              
+              const SizedBox(height: 16,),
+             const Divider(),
+              const SizedBox(height: 16,),
+              const Text("عنوان الاعلان",
+                style: TextStyle(
+                    color:Colors.black,
+                    fontSize: 20,fontWeight: FontWeight.w600
                 ),
               ),
-            );
-          },
-        );
-      },
-    );
-  }
+              const SizedBox(height: 12,),
+              CustomTextFormField(hint: 'عنوان الاعلان',
+                  obs: false,
+                  controller: controller.titleController),
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('العروض', style: GoogleFonts.cairo()),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            // Button to open add offer dialog
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                ElevatedButton(
-                  style:
-                      ElevatedButton.styleFrom(backgroundColor: primaryColor),
-                  onPressed: _showAddOfferDialog,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text('إضافة عرض جديد',
-                        style: GoogleFonts.cairo(
-                            color: Colors.white, fontSize: 18)),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            // Offers List
-            _buildOffersList(),
-          ],
-        ),
-      ),
-    );
-  }
+              const SizedBox(height: 12,),
 
-  Widget _buildOffersList() {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('ads').snapshots(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Center(
-              child: Text('لا توجد عروض', style: GoogleFonts.cairo()));
-        }
-
-        return Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 200),
-            child: Flexible(
-              // Changed from SizedBox to Flexible
-              child: ListView.builder(
-                scrollDirection: Axis.vertical,
-                itemCount: snapshot.data!.docs.length,
-                itemBuilder: (context, index) {
-                  var offer = snapshot.data!.docs[index];
-                  return _buildOfferCard(offer);
-                },
+              Text("وصف الاعلان ",
+              style:TextStyle(
+                color:secondaryTextColor,
+                fontSize: 20,fontWeight: FontWeight.w600
               ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildOfferCard(QueryDocumentSnapshot offer) {
-    String docId = offer.id;
-    String imageUrl = offer['image'];
-
-    return GestureDetector(
-      onTap: () {
-        // Add functionality for when the offer is tapped
-      },
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 10.0),
-        child: Card(
-          elevation: 8, // Enhanced shadow effect
-          shape:
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          child: Stack(
-            children: [
-              ClipRRect(
-                borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(16), bottom: Radius.circular(16)),
-                child: CachedNetworkImage(
-                  imageUrl: imageUrl,
-                  width: double.infinity,
-                  height: 180,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    color: Colors.grey[300],
-                    height: 180,
-                    width: double.infinity,
-                    child: const Center(child: CircularProgressIndicator()),
-                  ),
-                  errorWidget: (context, url, error) => const Icon(Icons.error),
-                ),
               ),
-              Positioned(
-                right: 10,
-                top: 10,
-                child: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () async {
-                    _deleteOffer(docId, imageUrl);
+              const SizedBox(height: 12,),
+              CustomTextFormField(hint: 'الوصف',
+                  obs: false,
+                  max: 6,
+                  controller: controller.desController),
+
+
+              const SizedBox(height: 12,),
+
+
+              Text(
+                'القسم الاساسي'.tr,
+                style: TextStyle(
+                    color:secondaryTextColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width * 0.83,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(13),
+                    color: Colors.white),
+                child: DropdownButton<String>(
+                  isExpanded: true,
+                  underline: const SizedBox.shrink(),
+                  value: controller.selectedCat,
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      controller.changeCatValue(newValue);
+                    }
                   },
+                  items: controller.catListNames
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          value,
+                          style: GoogleFonts.cairo(
+                              fontSize: 20, fontWeight: FontWeight.w400),
+                        ),
+                      ),
+                    );
+                  }).toList(),
                 ),
               ),
-            ],
+              const SizedBox(
+                height: 10,
+              ),
+
+              Text(
+                'القسم الفرعي '.tr,
+                style: TextStyle(
+                    color: secondaryTextColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+
+              Container(
+                width: MediaQuery.of(context).size.width * 0.83,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(13),
+                    color: Colors.white),
+                child: DropdownButton<String>(
+                  underline: const SizedBox.shrink(),
+                  isExpanded: true,
+                  value: controller.selectedSubCat,
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      controller.changeSubCatValue(newValue);
+                    }
+                  },
+                  items: controller.subCatListNames
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          value,
+                          style: GoogleFonts.cairo(
+                              fontSize: 20, fontWeight: FontWeight.w400),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+
+             const SizedBox(height: 11,),
+
+
+              Text(
+                'مدة الاعلان'.tr,
+                style: TextStyle(
+                    color: secondaryTextColor,
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+
+              Container(
+                width: MediaQuery.of(context).size.width * 0.83,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(13),
+                    color: Colors.white),
+                child: DropdownButton<String>(
+                  underline: const SizedBox.shrink(),
+                  isExpanded: true,
+                  value: controller.selectedDays,
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      controller.changeDayListValue(newValue);
+                    }
+                  },
+                  items: controller.daysList
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          value,
+                          style: GoogleFonts.cairo(
+                              fontSize: 20, fontWeight: FontWeight.w400),
+                        ),
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Center(
+                child: Text('السعر'+"  =  "+controller.price
+                    +" "+'DA',
+                style:TextStyle(
+                  color: secondaryTextColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 22
+                ),
+                ),
+              ),
+              const SizedBox(
+                height: 12,
+              ),
+
+
+
+              (controller.isLoading==false)?
+              Padding(
+                padding: const EdgeInsets.only(left:28.0,
+                right: 28
+                ),
+                child: CustomButton(text: 'اضف'.tr, onPressed: () async {
+                  
+                  
+                  await controller.addNewAdToFirestore(
+                    context,_imageUrl!
+                  );
+
+                  Get.snackbar('', 'تم اضافة الاعلان بنجاح',
+                      backgroundColor:Colors.green,
+                      colorText:Colors.white);
+
+                      Future.delayed(const Duration(seconds: 2), () {
+                
+                 setState(() {
+                  
+                    _imageUrl = null;
+                  
+                  });       
+             
+              });
+                 
+                }),
+              ):const Center(
+                child:CircularProgressIndicator(),
+              ),
+              const SizedBox(height: 22,),
+
+              //  Get.off(Routes.LOGIN);
+               // Get.off(const LoginView());
+
+            ],),
+          ),
+        );
+      }
+    );
+  }
+  Widget buildGridView() {
+    return InkWell(
+      child: SizedBox(
+        height: 342,
+      //  width: MediaQuery.of(context).size.width * 0.5,
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(1.0),
+            child: Container(
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(7),
+                    color: Colors.grey[200]),
+                child: ClipRRect(
+                    borderRadius:BorderRadius.circular(14),
+                    child: Image.file(File
+                      (controller.images[0].path)))),
           ),
         ),
       ),
+      onTap:(){
+        controller.pickMultipleImages();
+      },
     );
+    // return InkWell(
+    //   child: GridView.builder(
+    //     shrinkWrap: true,
+    //     itemCount: controller.images.length,
+    //     gridDelegate:
+    //     const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2),
+    //     itemBuilder: (BuildContext context, int index) {
+    //       return Padding(
+    //         padding: const EdgeInsets.all(1.0),
+    //         child: Container(
+    //             decoration: BoxDecoration(
+    //                 borderRadius: BorderRadius.circular(7),
+    //                 color: Colors.grey[200]),
+    //             child: ClipRRect(
+    //                 borderRadius:BorderRadius.circular(14),
+    //                 child: Image.file(File
+    //                   (controller.images[index].path)))),
+    //       );
+    //     },
+    //   ),
+    //   onTap: () {
+    //     controller.pickMultipleImages();
+    //   },
+    // );
   }
 }
+

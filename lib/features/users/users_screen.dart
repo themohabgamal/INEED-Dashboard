@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class UsersScreen extends StatefulWidget {
@@ -126,7 +127,48 @@ class _UsersScreenState extends State<UsersScreen> {
             Text(phone, style: GoogleFonts.cairo()),
           ],
         ),
+        trailing:IconButton(
+          icon:const Icon(Icons.delete,
+          size: 33,color:Colors.redAccent,
+          ),
+          onPressed:(){
+            showDeleteDialog(context,user.id);
+
+          },
+        ),
       ),
     );
   }
+}
+
+void showDeleteDialog(BuildContext context,String id) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('تأكيد الحذف'),
+        content: const Text('هل أنت متأكد أنك تريد حذف هذاالمستخدم ؟'),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('حذف', style: TextStyle(color: Colors.red)),
+            onPressed: () {
+              FirebaseFirestore.instance.collection('users').doc(id).delete();
+              // Add your delete action here
+              Navigator.of(context).pop();
+
+              Get.snackbar('', 'تم الحذف بنجاح',
+              backgroundColor:Colors.green,
+              colorText:Colors.white);
+            },
+          ),
+          TextButton(
+            child: const Text('الغاء', style: TextStyle(color: Colors.blue)),
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+          ),
+        ],
+      );
+    },
+  );
 }

@@ -108,13 +108,16 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ElevatedButton(
                     onPressed: _selectedToken != null
                         ? () {
+                      print("notiii...");
                             NotificationService.sendNotification(
                               _selectedToken!,
                               _titleController.text,
                               _messageController.text,
                             );
                           }
-                        : null, // Disable the button if no token is selected
+                        : (){
+                      print("NO TOKEN SELECTED");
+                    }, // Disable the button if no token is selected
                     style: ElevatedButton.styleFrom(
                       backgroundColor: _selectedToken != null
                           ? primaryColor

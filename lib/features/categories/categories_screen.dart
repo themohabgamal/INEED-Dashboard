@@ -1,16 +1,23 @@
+// ignore_for_file: depend_on_referenced_packages, library_prefixes, use_build_context_synchronously
+
 import 'dart:developer';
 import 'dart:io';
+import 'dart:math';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:google_fonts/google_fonts.dart';
+// ignore: unused_import
 import 'package:path/path.dart'
     as Path; // Ensure to import this for path manipulation
 import 'package:uuid/uuid.dart';
 import 'package:yemen_services_dashboard/core/theme/colors.dart';
+
+import 'get_sub_cat.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -22,21 +29,21 @@ class CategoriesScreen extends StatefulWidget {
 class _CategoriesScreenState extends State<CategoriesScreen> {
   String? _imageUrl;
   final _nameController = TextEditingController();
+  TextEditingController coinsController = TextEditingController();
   bool _isLoading = false;
   String? _uploadedFileURL;
 
   Future<void> imgFromGallery() async {
     final pickedFile =
         await ImagePicker().pickImage(source: ImageSource.gallery);
-
     if (pickedFile != null) {
       // Immediately set the image URL to display in the dialog
       setState(() {
         _imageUrl = pickedFile.path; // Set the picked image path
       });
-
       // Read the image as bytes for upload
       Uint8List imageData = await pickedFile.readAsBytes();
+      // ignore: avoid_print
       print('picked');
       uploadImage(imageData);
     }
@@ -60,7 +67,19 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     return downloadUrl;
   }
 
+
+String getRandomString(int length) {
+  const characters = '0123456789';
+  final random = Random();
+  return String.fromCharCodes(
+    Iterable.generate(
+      length,
+      (_) => characters.codeUnitAt(random.nextInt(characters.length)),
+    ),
+  );
+}
   Future<void> _addCategory() async {
+    String numb=getRandomString(4);
     if (_uploadedFileURL == null || _nameController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('يرجى اضافة الصورة واسم التصنيف')),
@@ -72,9 +91,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     final categoryCount =
         await FirebaseFirestore.instance.collection('cat').get();
 
-    if (categoryCount.docs.length >= 12) {
+    if (categoryCount.docs.length >= 230) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('لا يمكن إضافة أكثر من 12 تصنيف')),
+        const SnackBar(content:
+         Text('لا يمكن إضافة أكثر من 12 تصنيف')),
       );
       return;
     }
@@ -88,6 +108,8 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       await FirebaseFirestore.instance.collection('cat').add({
         'name': _nameController.text,
         'image': _uploadedFileURL,
+        'coins':coinsController.text,
+        'num':int.parse(numb)
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -100,8 +122,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       });
     } catch (error) {
       if (error is FirebaseException) {
+        // ignore: avoid_print
         print('Firebase Error: ${error.message}');
       } else {
+        // ignore: avoid_print
         print('Error: $error');
       }
       ScaffoldMessenger.of(context).showSnackBar(
@@ -206,6 +230,17 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                           style: GoogleFonts.cairo(),
                         ),
                         const SizedBox(height: 20),
+                        TextField(
+                          controller: coinsController,
+                          decoration: const InputDecoration(
+                              labelText: 'العمولة من هذا القسم ',
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.all(
+                                    Radius.circular(15.0),
+                                  ))),
+                          style: GoogleFonts.cairo(),
+                        ),
+                        const SizedBox(height: 20),
                         _isLoading
                             ? const Center(child: CircularProgressIndicator())
                             : ElevatedButton(
@@ -239,18 +274,19 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // Button to open add category dialog
+        
             Row(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 ElevatedButton(
                   style:
-                      ElevatedButton.styleFrom(backgroundColor: primaryColor),
+                      ElevatedButton.styleFrom
+                      (backgroundColor: primaryColor),
                   onPressed: _showAddCategoryDialog,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Text('إضافة قسم جديد',
-                        style: GoogleFonts.cairo(
+                    style: GoogleFonts.cairo(
                             color: Colors.white, fontSize: 18)),
                   ),
                 ),
@@ -320,49 +356,65 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         double cardWidth = constraints.maxWidth * 0.4; // 40% of available width
         double imageHeight = cardWidth * 1.5; // Aspect ratio 2:3
 
-        return Container(
-          margin: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Card(
-            elevation: 4,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ClipRRect(
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(12)),
-                  child: CachedNetworkImage(
-                    imageUrl: imageUrl,
-                    height: imageHeight, // Use calculated height
-                    fit: BoxFit.cover, // Cover the area appropriately
-                    errorWidget: (context, url, error) {
-                      log(error.toString());
-                      return const Icon(Icons.error, color: Colors.red);
+        return InkWell(
+          child: Container(
+            margin: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Card(
+              elevation: 4,
+              shape:
+                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ClipRRect(
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(12)),
+                    child: CachedNetworkImage(
+                      imageUrl: imageUrl,
+                      height: imageHeight, // Use calculated height
+                      fit: BoxFit.cover, // Cover the area appropriately
+                      errorWidget: (context, url, error) {
+                   //     log(error.toString());
+                        return const Icon(Icons.error, color: Colors.red);
+                      },
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Text(
+                      name,
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                      style: GoogleFonts.cairo(
+                          fontSize: 14), // Adjusted for better readability
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete, color: Colors.red),
+                    onPressed: () {
+                      _deleteCategory(docId, imageUrl);
                     },
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    name,
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1,
-                    style: GoogleFonts.cairo(
-                        fontSize: 14), // Adjusted for better readability
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.red),
-                  onPressed: () {
-                    _deleteCategory(docId, imageUrl);
-                  },
-                ),
-              ],
+                ],
+              ),
             ),
           ),
+          onTap:(){
+
+        //  Get.toNamed('/next'); 
+             Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) 
+              => GetSubCat(cat: name)),
+            );
+
+
+            // Get.to(GetSubCat(
+            //   cat: name
+            // ));
+          },
         );
       },
     );

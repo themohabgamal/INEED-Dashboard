@@ -1,13 +1,16 @@
+import 'package:get/get.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:yemen_services_dashboard/core/theme/colors.dart';
 import 'package:yemen_services_dashboard/features/categories/categories_screen.dart';
+import 'package:yemen_services_dashboard/features/categories/get_sub_cat.dart';
+import 'package:yemen_services_dashboard/features/categories/sub_cat.dart';
 import 'package:yemen_services_dashboard/features/notifications/notifications_screen.dart';
 import 'package:yemen_services_dashboard/features/offers/offers_screen.dart';
 import 'package:yemen_services_dashboard/features/service_providers/service_providers_screen.dart';
-import 'package:yemen_services_dashboard/features/statistics/statistics_screen.dart';
-import 'package:yemen_services_dashboard/features/users/users_screen.dart'; // Import GoogleFonts package
+import 'package:yemen_services_dashboard/features/users/users_screen.dart';
+import 'features/statistics/views/st_view.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,20 +26,23 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'عين اليمن',
+    return GetMaterialApp(
+      textDirection:TextDirection.rtl,
+      title: 'I NEED',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.blue,
         textTheme: GoogleFonts.cairoTextTheme(), // Use Cairo font for all text
       ),
+
       home: const Directionality(
         textDirection: TextDirection.rtl, // Set app direction to RTL
         child: Dashboard(),
       ),
+    initialRoute: '/', // Initial route when the app starts
+    //
     );
   }
 }
@@ -45,27 +51,29 @@ class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _DashboardState createState() => _DashboardState();
 }
-
+  String cat='';
 class _DashboardState extends State<Dashboard> {
   int _selectedIndex = 0;
-
   final List<Widget> _screens = [
     const CategoriesScreen(),
-    const OffersScreen(),
+    const AddAdView(),
     const UsersScreen(),
     const ProvidersScreen(),
     const NotificationsScreen(),
-    const StatisticsScreen(),
-    const SortedOffersScreen(),
+    const WorkersHome(),
+ //  const StatisticsScreen(),
+    const AddSubCat(),
+    GetSubCat(cat: cat),
+   // const SortedOffersScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     var screenWidth = MediaQuery.of(context).size.width;
     bool isLargeScreen = screenWidth > 800;
-
     return Scaffold(
       appBar: isLargeScreen
           ? null
@@ -95,6 +103,7 @@ class _DashboardState extends State<Dashboard> {
 
   // Drawer content
   Widget _buildDrawer() {
+
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -115,14 +124,17 @@ class _DashboardState extends State<Dashboard> {
             ),
           ),
           _buildDrawerItem(Icons.category, 'الاقسام', 0),
+           _buildDrawerItem(Icons.category, 'الاقسام الفرعية', 6),
           _buildDrawerItem(Icons.local_offer, 'العروض', 1),
           _buildDrawerItem(Icons.people, 'المستخدمين', 2),
           _buildDrawerItem(Icons.business, 'مقدمين الخدمات', 3),
           _buildDrawerItem(Icons.notifications, 'ارسال اشعارات', 4),
-          _buildDrawerItem(Icons.bar_chart, 'احصائيات', 5),
+          _buildDrawerItem(Icons.bar_chart, '   طلبات و احصائيات', 5),
         ],
       ),
     );
+
+
   }
 
   // Drawer item builder
