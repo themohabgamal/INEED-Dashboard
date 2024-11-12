@@ -91,7 +91,9 @@ class _AddAdViewState extends State<AddAdView> {
 
               const SizedBox(height: 22,),
 
-              CustomButton(text: 'عرض الاعلانات المتاحة بالتطبيق', onPressed: (){
+              CustomButton(
+                  color1:primaryColor,
+                  text: 'عرض الاعلانات المتاحة بالتطبيق', onPressed: (){
 
                 print("AD...");
 
@@ -100,12 +102,12 @@ class _AddAdViewState extends State<AddAdView> {
               }),
                 const SizedBox(height: 22,),
 
-                const Divider(color: Colors.blue,),
+                const Divider(color: Colors.grey,),
                     const SizedBox(height: 22,),
 
                     const Center(
                       child: Text('اضافة اعلانات جديدة',
-                      style:TextStyle(color:Colors.black,
+                      style:TextStyle(color:primaryColor,
                       fontSize: 22,fontWeight: FontWeight.bold
                       ),
                       ),
@@ -318,7 +320,7 @@ class _AddAdViewState extends State<AddAdView> {
                 ),
               ),
               const SizedBox(
-                height: 12,
+                height: 32,
               ),
 
 
@@ -328,9 +330,10 @@ class _AddAdViewState extends State<AddAdView> {
                 padding: const EdgeInsets.only(left:28.0,
                 right: 28
                 ),
-                child: CustomButton(text: 'اضف'.tr, onPressed: () async {
-                  
-                  
+                child: CustomButton(
+                    color1: primaryColor,
+                    text: 'اضف'.tr, onPressed: () async {
+
                   await controller.addNewAdToFirestore(
                     context,_imageUrl!
                   );

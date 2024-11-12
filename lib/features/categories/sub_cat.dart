@@ -16,8 +16,6 @@ class AddSubCat extends StatefulWidget {
 
 class _AddSubCatState extends State<AddSubCat> {
 
-
-
   CatController controller=Get.put(CatController());
   @override
   void initState() {
@@ -33,7 +31,8 @@ class _AddSubCatState extends State<AddSubCat> {
         toolbarHeight: 22,
         backgroundColor:primaryColor
       ),
-      body:Padding(
+      body :
+      Padding(
         padding: const EdgeInsets.all(8.0),
         child: ListView(children: [
           
@@ -96,24 +95,29 @@ class _AddSubCatState extends State<AddSubCat> {
                                 }).toList(),
                               );
                             })),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: 40),
 
-                        InkWell(
-                          child: const Card(
-                            color:Colors.blue,
-                            child:Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child:  Text("اضف قسم فرعي ",
-                              style:TextStyle(
-                                color:Colors.white,
-                                fontSize: 21
-                              ),
+                        Padding(
+                          padding: const EdgeInsets.only(left:41.0,right: 41),
+                          child: InkWell(
+                            child: const Card(
+                              color:primaryColor,
+                              child:Padding(
+                                padding: EdgeInsets.all(8.0),
+                                child:  Center(
+                                  child: Text("اضف قسم فرعي ",
+                                  style:TextStyle(
+                                    color:Colors.white,
+                                    fontSize: 21
+                                  ),
+                                  ),
+                                ),
                               ),
                             ),
+                            onTap:(){
+                              controller.addSubCategory(context);
+                            },
                           ),
-                          onTap:(){
-                            controller.addSubCategory(context);
-                          },
                         )
 
 

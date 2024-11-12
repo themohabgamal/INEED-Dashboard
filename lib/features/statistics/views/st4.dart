@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:yemen_services_dashboard/core/theme/colors.dart';
 import 'package:yemen_services_dashboard/features/offers/cutom_button.dart';
 import 'package:yemen_services_dashboard/features/statistics/controller/st_controller.dart';
@@ -326,6 +327,10 @@ class _WorkerTasksState extends State<ServicesOrders> {
   }
 }
 
+String getFormattedDateTime(DateTime date) {
+  // Format the date as needed, e.g., "October 29, 2024 - 2:30 PM"
+  return DateFormat('MMMM dd, yyyy - h:mm a').format(date);
+}
 class TasksNewWidget extends StatelessWidget {
   StController controller;
   Proposal task;
@@ -358,14 +363,22 @@ class TasksNewWidget extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            "عنوان العمل المطلوب : "+ task.title2,
+            "عنوان العمل المطلوب : ${task.title2}",
             style: TextStyle(
                 color: secondaryTextColor,
                 fontSize: 17,fontWeight:FontWeight.w600
             ),
           ),
           const SizedBox(height: 8),
-
+          Text(
+            getFormattedDateTime(DateTime.parse(task.date2))
+                .replaceAll('- 12:00 AM', ''),
+            style: TextStyle(
+                color: secondaryTextColor,
+                fontSize: 14,fontWeight:FontWeight.w400
+            ),
+          ),
+          const SizedBox(height: 8),
 
           (task.locationName.length>1)?
           Container(
@@ -384,14 +397,14 @@ class TasksNewWidget extends StatelessWidget {
                     ),
                   ),
 
-                  Text("اسم الموقع : "+task.locationName,
+                  Text("اسم الموقع : ${task.locationName}",
                     style:TextStyle(
                         color:secondaryTextColor,
                         fontSize: 16
                     ),
                   ),
                   const SizedBox(height: 5,),
-                  Text(" تفاصيل الموقع  : "+task.locationDes,
+                  Text(" تفاصيل الموقع  : ${task.locationDes}",
                     style:TextStyle(
                         color:secondaryTextColor,
                         fontSize: 16
@@ -431,7 +444,7 @@ class TasksNewWidget extends StatelessWidget {
           ):const SizedBox(),
 
           const SizedBox(height: 8),
-          Text("السعر : "+task.price+" ",
+          Text("السعر : ${task.price} ",
             style:TextStyle(
                 color:secondaryTextColor,
                 fontWeight: FontWeight.bold,
@@ -487,6 +500,22 @@ class TasksNewWidget extends StatelessWidget {
                   ),
                 ),
             ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("العميل : ${task.user_name}",
+              style:const TextStyle(color:Colors.black,fontSize: 17,fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12,),
+          Text("مقدم الخدمة : ${task.workerEmail}",
+          style: TextStyle(
+              color: secondaryTextColor,
+              fontSize: 17,fontWeight: FontWeight.w600
+          ),
           ),
 
 

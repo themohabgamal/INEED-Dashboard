@@ -4,6 +4,7 @@ class Proposal {
   final String date;
   final String cat;
   final String email;
+  final String name;
   final String description;
   final String details;
   final String phone;
@@ -36,6 +37,7 @@ class Proposal {
         this.locationDes='',
         this.locationName='',
         this.lat='',
+        this.name='',
         this.lng='',
         this.title2='',
       required this.details,
@@ -63,6 +65,7 @@ class Proposal {
 
       lat: json['Lat']??'',
       lng: json['Lng']??'',
+      name: json['name']??"",
       locationName: json['locationName']??'',
       locationDes: json['locationDes']??'',
 

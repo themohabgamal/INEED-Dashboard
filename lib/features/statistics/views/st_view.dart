@@ -19,7 +19,6 @@ class WorkersHome extends StatefulWidget {
 class _WorkersHomeState extends State<WorkersHome> {
  StController controller = Get.put(StController());
 
-
   @override
   void initState() {
     controller.getWorkerProposal();

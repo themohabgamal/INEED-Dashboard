@@ -305,6 +305,39 @@ getWorkerProposalWithStatus(String status)async{
  int allTasks=0;
 
 
+String name='';
+Future<String?> getUserNameFromTask(String taskId) async {
+  print("ID==="+taskId);
+  try {
+    // Reference to the Firestore instance
+    FirebaseFirestore firestore = FirebaseFirestore.instance;
+    // Query the `tasks` collection with the given taskId
+    DocumentSnapshot taskSnapshot = await firestore
+        .collection('tasks')
+        .doc(taskId)
+        .get();
+
+    // Check if the document exists
+    if (taskSnapshot.exists) {
+      // Retrieve the `user_name` from the document
+      String userName = taskSnapshot.get('user_name');
+
+
+      name=userName;
+      return userName;
+    } else {
+      print("Task not found");
+      return null;
+    }
+  } catch (e) {
+    print("Error retrieving user_name: $e");
+    return null;
+  }
+  update();
+}
+
+
+
 
 Future<void> openMap(double latitude, double longitude) async {
   String googleUrl = 'https://www.google.com/maps/search/?api=1&query=$latitude,$longitude';

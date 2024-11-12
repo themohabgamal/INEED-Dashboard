@@ -27,6 +27,9 @@ class _GetOffersViewState extends State<GetOffersView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: const Text("الاعلانات",style:TextStyle(color:Colors.white,fontSize: 21),),
+      ),
       body:Padding(
         padding: const EdgeInsets.all(8.0),
         child: GetBuilder<AdController>(

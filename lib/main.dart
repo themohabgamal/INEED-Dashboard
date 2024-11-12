@@ -6,6 +6,7 @@ import 'package:yemen_services_dashboard/core/theme/colors.dart';
 import 'package:yemen_services_dashboard/features/categories/categories_screen.dart';
 import 'package:yemen_services_dashboard/features/categories/get_sub_cat.dart';
 import 'package:yemen_services_dashboard/features/categories/sub_cat.dart';
+import 'package:yemen_services_dashboard/features/money/views/request_money.dart';
 import 'package:yemen_services_dashboard/features/notifications/notifications_screen.dart';
 import 'package:yemen_services_dashboard/features/offers/offers_screen.dart';
 import 'package:yemen_services_dashboard/features/service_providers/service_providers_screen.dart';
@@ -62,11 +63,12 @@ class _DashboardState extends State<Dashboard> {
     const AddAdView(),
     const UsersScreen(),
     const ProvidersScreen(),
-    const NotificationsScreen(),
+   // const NotificationsScreen(),
     const WorkersHome(),
  //  const StatisticsScreen(),
     const AddSubCat(),
     GetSubCat(cat: cat),
+    const RequestMoney()
    // const SortedOffersScreen(),
   ];
 
@@ -124,12 +126,13 @@ class _DashboardState extends State<Dashboard> {
             ),
           ),
           _buildDrawerItem(Icons.category, 'الاقسام', 0),
-           _buildDrawerItem(Icons.category, 'الاقسام الفرعية', 6),
+           _buildDrawerItem(Icons.category, 'الاقسام الفرعية', 5),
           _buildDrawerItem(Icons.local_offer, 'العروض', 1),
           _buildDrawerItem(Icons.people, 'المستخدمين', 2),
           _buildDrawerItem(Icons.business, 'مقدمين الخدمات', 3),
-          _buildDrawerItem(Icons.notifications, 'ارسال اشعارات', 4),
-          _buildDrawerItem(Icons.bar_chart, '   طلبات و احصائيات', 5),
+         // _buildDrawerItem(Icons.notifications, 'ارسال اشعارات', ),
+          _buildDrawerItem(Icons.bar_chart, '   طلبات و احصائيات', 4),
+          _buildDrawerItem(Icons.bar_chart, ' رصيدك و طلبات السحب ', 7),
         ],
       ),
     );
@@ -161,7 +164,6 @@ class _DashboardState extends State<Dashboard> {
 
 class SortedOffersScreen extends StatelessWidget {
   const SortedOffersScreen({super.key});
-
   @override
   Widget build(BuildContext context) {
     return Center(
