@@ -35,10 +35,7 @@ class _GetOffersViewState extends State<GetOffersView> {
         child: GetBuilder<AdController>(
           builder: (_) {
             return ListView(children:  [
-
-
               const SizedBox(height: 22,),
-
            (controller.adsList.isNotEmpty)?
               GridView.builder(
                 shrinkWrap: true,

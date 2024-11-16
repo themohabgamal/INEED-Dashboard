@@ -63,7 +63,7 @@ class _DashboardState extends State<Dashboard> {
     const AddAdView(),
     const UsersScreen(),
     const ProvidersScreen(),
-   // const NotificationsScreen(),
+    const NotificationsScreen(),
     const WorkersHome(),
  //  const StatisticsScreen(),
     const AddSubCat(),
