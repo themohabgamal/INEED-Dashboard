@@ -16,6 +16,7 @@ import 'package:path/path.dart'
     as Path; // Ensure to import this for path manipulation
 import 'package:uuid/uuid.dart';
 import 'package:yemen_services_dashboard/core/theme/colors.dart';
+import 'package:yemen_services_dashboard/features/offers/cutom_button.dart';
 
 import 'get_sub_cat.dart';
 
@@ -317,11 +318,13 @@ String getRandomString(int length) {
         return SizedBox(
           height: MediaQuery.of(context).size.height * 0.7,
           child: GridView.builder(
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: _calculateCrossAxisCount(context),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 4,
+             // _calculateCrossAxisCount(context),
               mainAxisSpacing: 10,
               crossAxisSpacing: 10,
-              childAspectRatio: 0.8, // Adjust this based on your design needs
+
+              childAspectRatio: 0.7, // Adjust this based on your design needs
             ),
             itemCount: snapshot.data!.docs.length,
             itemBuilder: (context, index) {
@@ -354,7 +357,7 @@ String getRandomString(int length) {
       builder: (context, constraints) {
         // Use a percentage of the available width for responsiveness
         double cardWidth = constraints.maxWidth * 0.4; // 40% of available width
-        double imageHeight = cardWidth * 1.5; // Aspect ratio 2:3
+        double imageHeight = cardWidth * 1.2; // Aspect ratio 2:3
 
         return InkWell(
           child: Container(
@@ -363,52 +366,67 @@ String getRandomString(int length) {
               elevation: 4,
               shape:
                   RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ClipRRect(
-                    borderRadius:
-                        const BorderRadius.vertical(top: Radius.circular(12)),
-                    child: CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      height: imageHeight, // Use calculated height
-                      fit: BoxFit.cover, // Cover the area appropriately
-                      errorWidget: (context, url, error) {
-                   //     log(error.toString());
-                        return const Icon(Icons.error, color: Colors.red);
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    ClipRRect(
+                      borderRadius:
+                          const BorderRadius.vertical(top: Radius.circular(12)),
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrl,
+                        height: imageHeight, // Use calculated height
+                        fit: BoxFit.cover, // Cover the area appropriately
+                        errorWidget: (context, url, error) {
+                     //     log(error.toString());
+                          return const Icon(Icons.error, color: Colors.red);
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Text(
+                        name,
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                        style: GoogleFonts.cairo(
+                            fontSize: 14), // Adjusted for better readability
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+
+                    CustomButton(
+                        width: 333,
+                        text: 'عرض الاقسام الفرعية بهذا القسم', onPressed:(){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context)
+                        => GetSubCat(cat: name)),
+                      );
+                    } ),
+
+
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () {
+                        _deleteCategory(docId, imageUrl);
                       },
                     ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Text(
-                      name,
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                      style: GoogleFonts.cairo(
-                          fontSize: 14), // Adjusted for better readability
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () {
-                      _deleteCategory(docId, imageUrl);
-                    },
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
           onTap:(){
 
         //  Get.toNamed('/next'); 
-             Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) 
-              => GetSubCat(cat: name)),
-            );
+        //      Navigator.push(
+        //       context,
+        //       MaterialPageRoute(builder: (context)
+        //       => GetSubCat(cat: name)),
+        //     );
 
 
             // Get.to(GetSubCat(

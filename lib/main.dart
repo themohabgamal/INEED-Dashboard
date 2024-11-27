@@ -63,12 +63,12 @@ class _DashboardState extends State<Dashboard> {
     const AddAdView(),
     const UsersScreen(),
     const ProvidersScreen(),
-    const NotificationsScreen(),
     const WorkersHome(),
  //  const StatisticsScreen(),
     const AddSubCat(),
     GetSubCat(cat: cat),
-    const RequestMoney()
+    const RequestMoney(),
+    const NotificationsScreen(),
    // const SortedOffersScreen(),
   ];
 
@@ -130,9 +130,10 @@ class _DashboardState extends State<Dashboard> {
           _buildDrawerItem(Icons.local_offer, 'العروض', 1),
           _buildDrawerItem(Icons.people, 'المستخدمين', 2),
           _buildDrawerItem(Icons.business, 'مقدمين الخدمات', 3),
-         // _buildDrawerItem(Icons.notifications, 'ارسال اشعارات', ),
+       //
           _buildDrawerItem(Icons.bar_chart, '   طلبات و احصائيات', 4),
           _buildDrawerItem(Icons.bar_chart, ' رصيدك و طلبات السحب ', 7),
+          _buildDrawerItem(Icons.notifications, 'ارسال اشعارات', 8),
         ],
       ),
     );

@@ -10,8 +10,11 @@ import 'package:yemen_services_dashboard/features/statistics/controller/st_contr
 import '../../orders/model/proposal.dart';
 
 class WorkerTasks2 extends StatefulWidget {
+
   String statusType;
-  WorkerTasks2({super.key,required this.statusType});
+String title;
+
+WorkerTasks2({super.key,required this.statusType,required this.title});
 
   @override
   State<WorkerTasks2> createState() => _WorkerTasksState();
@@ -234,7 +237,7 @@ class TasksNewWidget extends StatelessWidget {
               if (task.status == 'قيد المراجعة'
                   || task.status == 'pending'
               )
-                Text('قيد المراجعة',
+                Text('مهام مطروحة ',
                   style:TextStyle(
                       color:secondaryTextColor,
                       fontSize: 17,fontWeight: FontWeight.w600
@@ -244,7 +247,7 @@ class TasksNewWidget extends StatelessWidget {
 
               if (task.status == 'accepted'
               )
-                const Text('تمت الموافقة',
+                const Text('مهام قيد التنفيذ',
                   style:TextStyle(
                       color:Colors.green,
                       fontSize: 22,fontWeight: FontWeight.w600
@@ -252,7 +255,7 @@ class TasksNewWidget extends StatelessWidget {
                 ),
 
               if (task.status == 'canceled')
-                const Text('ملغي',
+                const Text('مهام ملغاه',
                   style:TextStyle(
                       color:Colors.red,
                       fontSize: 22,fontWeight: FontWeight.w600
@@ -260,7 +263,7 @@ class TasksNewWidget extends StatelessWidget {
                 ),
               //done
               if (task.status == 'done')
-                const Text('تم الانتهاء',
+                const Text('مهام مكتملة',
                   style:TextStyle(
                       color:Colors.green,
                       fontSize: 22,fontWeight: FontWeight.w600
@@ -347,12 +350,14 @@ class _WorkerTasksState extends State<WorkerTasks2> {
   @override
   void initState() {
     print("st=======${widget.statusType}");
-    if(widget.statusType!='x'){
-      controller.changeSelectedStatus(widget.statusType);
-    }else{
-      controller.getWorkerProposal();
-      //controller.getWorkerProposal();
-    }
+
+    controller.getWorkerProposalWithStatus(widget.statusType);
+    // if(widget.statusType!='x'){
+    //   controller.changeSelectedStatus(widget.statusType);
+    // }else{
+    //   controller.getWorkerProposal();
+    //   //controller.getWorkerProposal();
+    // }
     super.initState();
   }
 
@@ -366,11 +371,14 @@ class _WorkerTasksState extends State<WorkerTasks2> {
           builder: (_) {
             return Scaffold(
               backgroundColor:backgroundColor,
-              //AppColors.backgroundColor,
+
               appBar: AppBar(
                 toolbarHeight: 90,
                 elevation: 0.2,
                 backgroundColor: appBarColor,
+                title: Text(widget.title,
+                style:const TextStyle(color: Colors.white),
+                ),
                 leading: IconButton(
                   icon: const Icon(
                     Icons.arrow_back,
@@ -388,93 +396,6 @@ class _WorkerTasksState extends State<WorkerTasks2> {
                 padding: const EdgeInsets.all(0.0),
                 child: Column(
                   children: [
-                    Container(
-                      decoration:BoxDecoration(
-                          borderRadius: BorderRadius.circular(0),
-                          color:primary
-                        //.withOpacity(0.5)
-                      ),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 5),
-                          const Text('المهام المقدمة',
-                              style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 23,fontWeight:FontWeight.bold
-                              )),
-
-                          const SizedBox(height: 8),
-                          Center(
-                            child: Row(
-                              children: [
-                                const SizedBox(width: 120,),
-                                const Padding(
-                                  padding: EdgeInsets.only(left:10.0,right: 10),
-                                  child: Text(
-                                    "اختر الحالة",
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,fontWeight:FontWeight.w600
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 5,),
-                                Center(
-                                  child: Container(
-                                      width: MediaQuery.of(context).size.width*0.57,
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(12),
-                                          color:primary.withOpacity(0.8)
-                                        // color: AppColors.DropDownColor,
-                                      ),
-                                      child: GetBuilder<StController>(builder: (_) {
-                                        return DropdownButton<String>(
-                                          underline: const SizedBox.shrink(),
-                                          value: controller.selectedStatus,
-                                          onChanged: (newValue) {
-                                            controller.changeSelectedStatus(newValue!);
-                                            //  controller.changeCatValue(newValue!);
-                                          },
-                                          items:
-                                          controller.statusList.map((String item) {
-                                            return DropdownMenuItem<String>(
-                                              value: item,
-                                              child: Padding(
-                                                padding: const EdgeInsets.all(8.0),
-                                                child: Container(
-                                                  width: MediaQuery.of(context).size.width*0.40,
-                                                  decoration:BoxDecoration(
-                                                    color:Colors.black.withOpacity(0.6),
-                                                    borderRadius: BorderRadius.circular(22),
-                                                  ),
-                                                  child: Padding(
-                                                    padding: const EdgeInsets.all(4.0),
-                                                    child: Center(
-                                                      child: Text(
-                                                        item,
-                                                        style: const TextStyle(
-                                                            fontSize: 16,
-                                                            fontWeight:FontWeight.bold,
-                                                            color:Colors.white),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                        );
-                                      })),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                        ],
-                      ),
-                    ),
-
-
 
                     Expanded(
                       child: Padding(
@@ -513,85 +434,7 @@ class _WorkerTasksState extends State<WorkerTasks2> {
                     child: Column(
                       // mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const SizedBox(height: 0),
-                        Container(
-                          decoration:BoxDecoration(
-                              borderRadius: BorderRadius.circular(12),
-                              color:primary
-                            //.withOpacity(0.5)
-                          ),
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 10),
-                              const Text('المهام المقدمة',
-                                  style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 23,fontWeight:FontWeight.bold
-                                  )),
-                              const SizedBox(height: 8),
-                              Row(
-                                children: [
-                                  const SizedBox(width: 10,),
-                                  const Padding(
-                                    padding: EdgeInsets.only(left:10.0,right: 10),
-                                    child: Text(
-                                      "اختر الحالة",
-                                      style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,fontWeight:FontWeight.w600
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 5,),
-                                  Container(
-                                      width: MediaQuery.of(context).size.width*0.57,
-                                      decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(12),
-                                          color:primary.withOpacity(0.8)
-                                        // color: AppColors.DropDownColor,
-                                      ),
-                                      child: GetBuilder<StController>(builder: (_) {
-                                        return DropdownButton<String>(
-                                          underline: const SizedBox.shrink(),
-                                          value: controller.selectedStatus,
-                                          onChanged: (newValue) {
-                                            controller.changeSelectedStatus(newValue!);
-                                            //  controller.changeCatValue(newValue!);
-                                          },
-                                          items:
-                                          controller.statusList.map((String item) {
-                                            return DropdownMenuItem<String>(
-                                              value: item,
-                                              child: Container(
-                                                height: 44,
-                                                width: MediaQuery.of(context).size.width*0.40,
-                                                decoration:BoxDecoration(
-                                                  color:Colors.black.withOpacity(0.6),
-                                                  borderRadius: BorderRadius.circular(22),
-                                                ),
-                                                child: Padding(
-                                                  padding: const EdgeInsets.all(5.0),
-                                                  child: Center(
-                                                    child: Text(
-                                                      item,
-                                                      style: const TextStyle(
-                                                          fontSize: 16,
-                                                          fontWeight:FontWeight.bold,
-                                                          color: Colors.white),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            );
-                                          }).toList(),
-                                        );
-                                      })),
-                                ],
-                              ),
-                              const SizedBox(height: 19),
-                            ],
-                          ),
-                        ),
+
 
                         const SizedBox(height: 40),
 

@@ -28,9 +28,9 @@ Color textColor2 = Colors.black;
 Color textColor3 = Colors.black;
 
 
-List<String>statusList=['مهام قيد المراجعة',
-  'المهام المنتهية',
-  'المهام المقبولة','المهام المرفوضة',
+List<String>statusList=['مهام مطروحة',
+  'مهام مكتملة',
+  'مهام قيد التنفيذ','مهام ملغاه',
   'جميع المهام'
 ];
 
@@ -46,18 +46,18 @@ changeSelectedStatusForBuyServices(String status){
   if(status=='جميع المهام'){
     st='x';
   }
-  if( status=='مهام قيد المراجعة'){
+  if( status=='مهام مطروحة'){
     st='pending';
   }
 
-  if( status=='المهام المرفوضة'){
+  if( status=='مهام ملغاه'){
     st='canceled';
   }
 
-  if( status=='المهام المقبولة'){
+  if( status=='مهام قيد التنفيذ'){
     st='accepted';
   }
-  if( status=='المهام المنتهية'){
+  if( status=='مهام مكتملة'){
     st='done';
   }
   getBuyServicesWithStatus(st);
@@ -157,7 +157,7 @@ if(workerDeviceToken=='x'){
     String? token =
     await FirebaseMessaging.instance.getToken();
     String email=box.read('email');
-    print("TOKE===="+token!);
+    print("TOKE====${token!}");
     // Reference to the users collection
     final usersCollection =
     FirebaseFirestore.instance.
@@ -231,7 +231,7 @@ getWorkerBuyServices()async{
 }
 
 getBuyServicesWithStatus(String status)async{
-  print("ST========"+status);
+  print("ST========$status");
   if(status=='x'){
     getWorkerBuyServices();
   }else{
@@ -262,18 +262,14 @@ getBuyServicesWithStatus(String status)async{
 
 
 getWorkerProposalWithStatus(String status)async{
-  print("HERE ST=====WITH STATUS.........=="+status);
-  proposalList=[];
-  update();
-  if(status=='x'){
-    getWorkerProposal();
-  }
-  else{
+  print("HERE ST=====WITH STATUS.........==$status");
+
+  if(status=='pending'){
+
+    //   .where('status', whereIn: ['pending', 'قيد المراجعة']
+
     print("GET PROPOSALS...............");
     proposalList=[];
-    update();
-    //proposalList=[];
-    //final box=GetStorage();
 
     try {
       print("GET PROPOSALS");
@@ -281,7 +277,7 @@ getWorkerProposalWithStatus(String status)async{
       QuerySnapshot querySnapshot =
       await FirebaseFirestore.instance
           .collection('proposals')
-      .where('status',isEqualTo: status)
+          .where('status', whereIn: ['pending', 'قيد المراجعة'])
       // .where('user_email',isEqualTo: 'test@gmail.com')
           .get();
       proposalList = querySnapshot.docs.map((DocumentSnapshot doc) {
@@ -292,6 +288,32 @@ getWorkerProposalWithStatus(String status)async{
       print("Tasks loaded: ${proposalList.length} Tasks found.");
     } catch (e) {
       print("Error fetching ads: $e");
+
+    }
+
+  }else{
+
+    print("GET PROPOSALS...............");
+    proposalList=[];
+
+    try {
+      print("GET PROPOSALS");
+      // Fetch all documents from the 'ads' collection
+      QuerySnapshot querySnapshot =
+      await FirebaseFirestore.instance
+          .collection('proposals')
+          .where('status',isEqualTo: status)
+      // .where('user_email',isEqualTo: 'test@gmail.com')
+          .get();
+      proposalList = querySnapshot.docs.map((DocumentSnapshot doc) {
+        return Proposal.fromFirestore(doc.data() as Map<String, dynamic>, doc.id);
+      }).toList();
+      isLoading=true;
+      update();
+      print("Tasks loaded: ${proposalList.length} Tasks found.");
+    } catch (e) {
+      print("Error fetching ads: $e");
+
     }
   }
 
@@ -307,7 +329,7 @@ getWorkerProposalWithStatus(String status)async{
 
 String name='';
 Future<String?> getUserNameFromTask(String taskId) async {
-  print("ID==="+taskId);
+  print("ID===$taskId");
   try {
     // Reference to the Firestore instance
     FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -387,10 +409,6 @@ getWorkerProposal()async{
   pendingTasks=0;
   acceptedTasks=0;
   allTasks=0;
-  print("GET PROPOSALS...............");
-  final box=GetStorage();
-  String email=box.read('email')??'test3@gmail.com';
-  print("EMAIL=="+email);
     try {
       print("GET PROPOSALS");
       // Fetch all documents from the 'ads' collection
@@ -412,7 +430,7 @@ getWorkerProposal()async{
         if(proposalList[i].status=='accepted'){
           acceptedTasks++;
         }
-        if(proposalList[i].status=='قيد المراجعة'){
+        if(proposalList[i].status=='قيد المراجعة'|| proposalList[i].status=='pending'){
           pendingTasks++;
         }
       }
@@ -426,10 +444,37 @@ getWorkerProposal()async{
 }
 
 
+  getWorkerProposalWithSt(String st)async{
+    isLoading=false;
+    update();
+    doneTasks=0;
+    refusedTasks=0;
+    pendingTasks=0;
+    acceptedTasks=0;
+    allTasks=0;
+    try {
+      print("GET PROPOSALS");
+      // Fetch all documents from the 'ads' collection
+      QuerySnapshot querySnapshot =
+      await FirebaseFirestore.instance.collection('proposals')
+       .where('status',isEqualTo: st)
+          .get();
+      proposalList = querySnapshot.docs.map((DocumentSnapshot doc) {
+        return Proposal.fromFirestore(doc.data() as Map<String, dynamic>, doc.id);
+      }).toList();
+
+      print("Tasks loaded: ${proposalList.length} Tasks found.");
+      isLoading=true;
+      update();
+    } catch (e) {
+      print("Error fetching ads: $e");
+    }
+  }
+
 Future<void> updateWorkerStatus(String status,String id) async {
   final box=GetStorage();
   String email=box.read('email');
-  print("EMAIL=="+email);
+  print("EMAIL==$email");
   try {
     // Reference the 'buyService' collection
     CollectionReference collectionRef = FirebaseFirestore.instance.collection('buyService');

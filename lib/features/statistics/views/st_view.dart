@@ -41,14 +41,13 @@ class _WorkersHomeState extends State<WorkersHome> {
             child: ListView(
               physics: const BouncingScrollPhysics(),
               children: [
+
                 const SizedBox(height: 12),
-
-
-              CustomButton(text: 'عرض الخدمات', onPressed: () {
-                Get.to(WorkerTasks2
-                  (statusType: 'x'
-                ));
-              }),
+              // CustomButton(text: 'عرض الخدمات', onPressed: () {
+              //   Get.to(WorkerTasks2
+              //     (statusType: 'x'
+              //   ));
+              // }),
 
                
               
@@ -77,10 +76,14 @@ class _WorkersHomeState extends State<WorkersHome> {
                   children: [
                   InkWell(
                     child: StWidget(
-                      txt: 'مهام  قيد المراجعة',
+                      txt: 'مهام  مطروحة ',
                       number:controller.pendingTasks.toString()
                     ),
                     onTap:(){
+
+                      Get.to(WorkerTasks2(statusType: 'pending',
+                        title: 'مهام  مطروحة ',
+                      ));
 
 
                     },
@@ -93,6 +96,11 @@ class _WorkersHomeState extends State<WorkersHome> {
                     ),
                     onTap:(){
 
+                      Get.to(WorkerTasks2(statusType: 'done',
+
+                      title:'مهام مكتملة',
+                      ));
+
                     },
                   ),
                 ],),
@@ -102,10 +110,14 @@ class _WorkersHomeState extends State<WorkersHome> {
                   children: [
                     InkWell(
                       child: StWidget(
-                          txt: 'مهام تمت الموافقة عليها',
+                          txt: 'مهام قيد التنفيذ',
                           number:controller.acceptedTasks.toString()
                       ),
                       onTap: (){
+
+                        Get.to(WorkerTasks2(statusType: 'accepted',
+                        title: 'مهام قيد التنفيذ',
+                        ));
 
 
 
@@ -114,12 +126,14 @@ class _WorkersHomeState extends State<WorkersHome> {
 
                     InkWell(
                       child: StWidget(
-                          txt: 'مهام مرفوضة',
+                          txt: 'مهام ملغاه',
                           number:controller.refusedTasks.toString()
                       ),
                       onTap:(){
 
-
+                        Get.to(WorkerTasks2(statusType: 'cancelled',
+                        title:'مهام ملغاه',
+                        ));
                       },
                     ),
                   ],),
@@ -127,10 +141,7 @@ class _WorkersHomeState extends State<WorkersHome> {
                 const Row(
                   mainAxisAlignment:MainAxisAlignment.spaceBetween,
                   children: [
-                    StWidget(
-                        txt: 'نقاطك',
-                        number:'0'
-                    ),
+
 
                     StWidget(
                         txt: 'رصيدك',
@@ -143,12 +154,12 @@ class _WorkersHomeState extends State<WorkersHome> {
                   color:greyTextColor,
                 ),
 
-                CustomButton(text: 'عرض الطلبات المباشرة', onPressed: () {
-                  Get.to(ServicesOrders
-                    (statusType: 'x'
-                  ));
-                }),
-                const SizedBox(height:20,),
+                // CustomButton(text: 'عرض الطلبات المباشرة', onPressed: () {
+                //   Get.to(ServicesOrders
+                //     (statusType: 'x'
+                //   ));
+                // }),
+                // const SizedBox(height:20,),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: Row(
@@ -175,15 +186,18 @@ class _WorkersHomeState extends State<WorkersHome> {
                   children: [
                     InkWell(
                       child: StWidget(
-                          txt: 'مهام  قيد المراجعة',
+                          txt: 'مهام  مطروحة ',
                           number:controller
                               .pendingBuyTasks.toString()
                       ),
                       onTap:(){
-                         Get.to(WorkerTasks2
-                          (
-                          statusType: 'مهام قيد المراجعة'
+                        Get.to(ServicesOrders
+                          (statusType: 'pending'
                         ));
+                        //  Get.to(WorkerTasks2
+                        //   (
+                        //   statusType: 'مهام قيد المراجعة'
+                        // ));
 
                       },
                     ),
@@ -195,11 +209,14 @@ class _WorkersHomeState extends State<WorkersHome> {
                               .doneBuyTasks.toString()
                       ),
                       onTap:(){
-//             Get.to(UserTasksView(statusType: 'المهام المنتهية'));
-                        Get.to(WorkerTasks2
-                          (
-                            statusType: 'المهام المنتهية'
+                        Get.to(ServicesOrders
+                          (statusType: 'done'
                         ));
+//             Get.to(UserTasksView(statusType: 'المهام المنتهية'));
+//                         Get.to(WorkerTasks2
+//                           (
+//                             statusType: 'المهام المنتهية'
+//                         ));
                       },
                     ),
                   ],),
@@ -209,35 +226,41 @@ class _WorkersHomeState extends State<WorkersHome> {
                   children: [
                     InkWell(
                       child: StWidget(
-                          txt: 'مهام تمت الموافقة عليها',
+                          txt: 'مهام قيد التنفيذ',
                           number:
                           controller
                               .acceptedBuyTasks.toString()
                       ),
                       onTap: (){
+                        Get.to(ServicesOrders
+                          (statusType: 'accepted'
+                        ));
 
 
-                   Get.to(WorkerTasks2
-                          (
-                            statusType: 'المهام المقبولة')
-                        );
+                   // Get.to(WorkerTasks2
+                   //        (
+                   //          statusType: 'المهام المقبولة')
+                   //      );
 
                       },
                     ),
 
                     InkWell(
                       child: StWidget(
-                          txt: 'مهام مرفوضة',
+                          txt: 'مهام ملغاه',
                           number:controller.refusedBuyTasks.toString()
                       ),
                       onTap:(){
+                        Get.to(ServicesOrders
+                          (statusType: 'cancelled'
+                        ));
 
-
-                        Get.to(WorkerTasks2
-                          (
-                            statusType: 'المهام المرفوضة'
-                        )
-                        );
+                        //
+                        // Get.to(WorkerTasks2
+                        //   (
+                        //     statusType: 'المهام المرفوضة'
+                        // )
+                        // );
 
                       },
                     ),

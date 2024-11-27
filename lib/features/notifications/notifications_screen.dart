@@ -17,8 +17,11 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   final NotificationService _notificationService = NotificationService();
 
   String? _selectedUserId;
+  String? _selectedPrvoiderId;
   String? _selectedToken;
+  String? _selectedProviderToken;
   String? _selectedUserName;
+  String? _selectedProviderName;
 
   @override
   Widget build(BuildContext context) {
@@ -100,6 +103,10 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                 }
               },
             ),
+
+
+
+
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.only(top: 10),
@@ -109,12 +116,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     onPressed: _selectedToken != null
                         ? () {
                       print("notiii...");
-                            NotificationService.sendNotification(
-                              _selectedToken!,
-                              _titleController.text,
-                              _messageController.text,
-                            );
-                          }
+                      NotificationService.sendNotification(
+                        _selectedToken!,
+                        _titleController.text,
+                        _messageController.text,
+                      );
+                    }
                         : (){
                       print("NO TOKEN SELECTED");
                     }, // Disable the button if no token is selected
@@ -152,7 +159,109 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ),
                 ],
               ),
+            ),
+
+
+            const SizedBox(height: 16),
+            FutureBuilder<QuerySnapshot>(
+              future: FirebaseFirestore.instance.collection('serviceProviders').get(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text('Error: ${snapshot.error}'));
+                } else {
+                  final users = snapshot.data!.docs;
+
+                  return DropdownButtonFormField<String>(
+                    value: _selectedPrvoiderId,
+                    decoration: InputDecoration(
+                      labelText: 'اختر مقدم الخدمة  ',
+                      border: const OutlineInputBorder(),
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                    ),
+                    items: users.map((user) {
+                      final userId = user.id;
+                      final userName = user['name'] ?? 'Unnamed User';
+                      return DropdownMenuItem<String>(
+                        value: userId,
+                        child: Text(userName, style: GoogleFonts.cairo()),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedPrvoiderId = value;
+                        _selectedProviderToken = users.firstWhere(
+                                (user) => user.id == value)['fcmToken'] ??
+                            'Non';
+                        _selectedProviderName = users.firstWhere(
+                                (user) => user.id == value)['name'] ??
+                            'Unnamed User';
+                      });
+                    },
+                    hint: Text('اختر مقدم الخدمة  ', style: GoogleFonts.cairo()),
+                  );
+                }
+              },
+            ),
+
+
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.only(top: 10),
+              child: Row(
+                children: [
+                  ElevatedButton(
+                    onPressed: _selectedProviderToken != null
+                        ? () {
+                      print("notiii...");
+                      NotificationService.sendNotification(
+                        _selectedProviderToken!,
+                        _titleController.text,
+                        _messageController.text,
+                      );
+                    }
+                        : (){
+                      print("NO TOKEN SELECTED");
+                    }, // Disable the button if no token is selected
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: _selectedToken != null
+                          ? primaryColor
+                          : Colors.grey, // Change color when disabled
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: Text(
+                        'إرسال لمقدم خدمة',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      NotificationService.sendNotificationToAll(
+                        _titleController.text,
+                        _messageController.text,
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: primaryColor,
+                    ),
+                    child: const Padding(
+                      padding: EdgeInsets.all(12),
+                      child: Text(
+                        'إرسال للجميع',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             )
+
+
           ],
         ),
       ),
