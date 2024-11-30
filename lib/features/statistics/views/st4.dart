@@ -1,4 +1,5 @@
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
@@ -26,16 +27,6 @@ class _WorkerTasksState extends State<ServicesOrders> {
   void initState() {
 
     controller.getBuyServicesWithStatus(widget.statusType);
-
-    // print("st=======${widget.statusType}");
-    // if(widget.statusType=='x'){
-    //   controller.getWorkerBuyServices();
-    // }else{
-    //   // controller.changeSelectedStatus
-    //   //   (widget.statusType);
-    //   controller.changeSelectedStatusForBuyServices
-    //     (widget.statusType);
-    // }
     super.initState();
   }
 
@@ -185,12 +176,20 @@ class TasksNewWidget extends StatelessWidget {
 
           ClipRRect(
             borderRadius:BorderRadius.circular(13),
-            child: Image.network
+            child: CachedNetworkImage(
+                height: 95,
+                width: 222,
+                imageUrl: task.image2,
+                fit:BoxFit.fill,
+                placeholder: (context, url) =>
+                const Icon(Icons.ad_units_outlined,
+                  size: 44,color:primaryColor,
+                ),
 
-              (task.image2,
-              fit:BoxFit.fill,
-              height: 110,
-              width: 222,
+                errorWidget: (context, url, error) =>
+                    const Icon(Icons.ad_units_outlined,
+                    size: 44,color:primaryColor,
+                    )
             ),
           ),
           const SizedBox(height: 8),
@@ -333,6 +332,8 @@ class TasksNewWidget extends StatelessWidget {
                 ),
             ],
           ),
+          const SizedBox(height: 8),
+          const Divider(),
           const SizedBox(height: 8),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

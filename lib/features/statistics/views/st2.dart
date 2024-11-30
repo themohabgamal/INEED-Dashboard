@@ -106,11 +106,14 @@ class TasksNewWidget extends StatelessWidget {
                 width: 222,
                 imageUrl: task.image,
                 fit:BoxFit.fill,
-                placeholder: (context, url) =>const Center(
-                  child: CircularProgressIndicator(),
+                placeholder: (context, url) =>
+                const Icon(Icons.ad_units_outlined,
+                  size: 44,color:primaryColor,
                 ),
-                errorWidget: (context, url, error) =>const Center(
-                  child: CircularProgressIndicator(),
+
+                errorWidget: (context, url, error) =>
+                const Icon(Icons.ad_units_outlined,
+                  size: 44,color:primaryColor,
                 )
             ),
           ),
@@ -124,11 +127,9 @@ class TasksNewWidget extends StatelessWidget {
           ),
           // getFormattedDateTime(DateTime.parse(task.date))
           //                                   .replaceAll('- 12:00 AM', ''),
-
           const SizedBox(height: 8),
           Text(
-              getFormattedDateTime(DateTime.parse(task.date))
-                                               .replaceAll('- 12:00 AM', ''),
+              getFormattedDateTime(DateTime.parse(task.date)).replaceAll('- 12:00 AM', ''),
             style: TextStyle(
                 color: secondaryTextColor,
                 fontSize: 14,fontWeight:FontWeight.w400

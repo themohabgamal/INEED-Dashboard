@@ -1,17 +1,13 @@
-
-
-
-
-
-
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:yemen_services_dashboard/features/categories/cat_controller.dart';
 import 'package:yemen_services_dashboard/features/categories/image_widget.dart';
-
 import '../../core/theme/colors.dart';
 import '../model/subCat_model.dart';
+
+
+
 
 class EditSubCat extends StatefulWidget {
   SubCat subCat;
@@ -138,55 +134,49 @@ class _AddSubCatState extends State<EditSubCat> {
                       }).toList(),
                     );
                   })),
-              const SizedBox(height: 20),
+              const SizedBox(height: 40),
 
-              InkWell(
-                child: const Card(
-                  color:Colors.blue,
-                  child:Padding(
-                    padding: EdgeInsets.all(9.0),
-                    child:  Center(
-                      child: Text("تعديل  ",
-                        style:TextStyle(
-                            color:Colors.white,
-                            fontSize: 21
+              Padding(
+                padding: const EdgeInsets.only(left: 48.0,right: 48),
+                child: InkWell(
+                  child: const Card(
+                    color: primaryColor,
+                    child:Padding(
+                      padding: EdgeInsets.all(9.0),
+                      child:  Center(
+                        child: Text("تعديل  ",
+                          style:TextStyle(
+                              color:Colors.white,
+                              fontSize: 21
+                          ),
                         ),
                       ),
                     ),
                   ),
+                  onTap:(){
+                    if(controller.imageUrl==null){
+                      controller.updateSubCategoryDocument(
+                          widget.subCat.name,
+                          {
+                            "name": controller.subCatNameController.text,
+                            "cat": controller.selectedItem,
+                            "image": widget.subCat.image
+                          }
+                      );
+                    }
+                    else{
+                      controller.updateSubCategoryDocument(
+                          widget.subCat.name,
+                          {
+                            "name": controller.subCatNameController.text,
+                            "cat": controller.selectedItem,
+                            "image": controller.imageUrl
+                          }
+                      );
+                    }
+                  },
                 ),
-                onTap:(){
-                  if(controller.imageUrl==null){
-
-                    controller.updateSubCategoryDocument(
-                        widget.subCat.name,
-                        {
-                          "name": controller.subCatNameController.text,
-                          "cat": controller.selectedItem,
-                          "image": widget.subCat.image
-                        }
-                    );
-
-                  }else{
-
-                    controller.updateSubCategoryDocument(
-                        widget.subCat.name,
-                        {
-                          "name": controller.subCatNameController.text,
-                          "cat": controller.selectedItem,
-                          "image": controller.imageUrl
-                        }
-                    );
-
-                  }
-
-                },
               )
-
-
-
-
-
             ],);
           }
         ),
